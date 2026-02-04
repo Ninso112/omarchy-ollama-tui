@@ -1,0 +1,25 @@
+/home/ninso/Documents/Projekte/omarchy-ollama-tui/target/debug/deps/ollama_tui-cc1947078f82d9de.d: src/lib.rs src/app.rs src/config.rs src/events/mod.rs src/events/handler.rs src/events/tick.rs src/gpu/mod.rs src/gpu/amd.rs src/gpu/fallback.rs src/gpu/intel.rs src/gpu/nvidia.rs src/ollama/mod.rs src/ollama/client.rs src/ollama/models.rs src/ollama/process.rs src/ui/mod.rs src/ui/gpu_stats.rs src/ui/layout.rs src/ui/model_list.rs src/ui/pull_dialog.rs src/ui/status_bar.rs
+
+/home/ninso/Documents/Projekte/omarchy-ollama-tui/target/debug/deps/libollama_tui-cc1947078f82d9de.rmeta: src/lib.rs src/app.rs src/config.rs src/events/mod.rs src/events/handler.rs src/events/tick.rs src/gpu/mod.rs src/gpu/amd.rs src/gpu/fallback.rs src/gpu/intel.rs src/gpu/nvidia.rs src/ollama/mod.rs src/ollama/client.rs src/ollama/models.rs src/ollama/process.rs src/ui/mod.rs src/ui/gpu_stats.rs src/ui/layout.rs src/ui/model_list.rs src/ui/pull_dialog.rs src/ui/status_bar.rs
+
+src/lib.rs:
+src/app.rs:
+src/config.rs:
+src/events/mod.rs:
+src/events/handler.rs:
+src/events/tick.rs:
+src/gpu/mod.rs:
+src/gpu/amd.rs:
+src/gpu/fallback.rs:
+src/gpu/intel.rs:
+src/gpu/nvidia.rs:
+src/ollama/mod.rs:
+src/ollama/client.rs:
+src/ollama/models.rs:
+src/ollama/process.rs:
+src/ui/mod.rs:
+src/ui/gpu_stats.rs:
+src/ui/layout.rs:
+src/ui/model_list.rs:
+src/ui/pull_dialog.rs:
+src/ui/status_bar.rs:

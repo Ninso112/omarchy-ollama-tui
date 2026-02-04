@@ -1,0 +1,65 @@
+[package]
+name = "ollama-tui"
+version = "0.1.0"
+edition = "2021"
+authors = ["Your Name <your.email@example.com>"]
+description = "A terminal user interface for managing Ollama (local LLM server) with real-time GPU monitoring"
+license = "GPL-3.0"
+repository = "https://github.com/Ninso112/omarchy-ollama-tui"
+keywords = ["ollama", "tui", "llm", "gpu", "monitoring"]
+categories = ["command-line-utilities"]
+
+[dependencies]
+# TUI Framework
+ratatui = "0.26"
+crossterm = "0.27"
+
+# Async Runtime
+tokio = { version = "1.35", features = ["full"] }
+
+# HTTP Client for Ollama API
+reqwest = { version = "0.11", features = ["json"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error Handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# GPU Monitoring
+nvml-wrapper = { version = "0.10", optional = true }
+sysinfo = "0.30"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Configuration
+dirs = "5.0"
+toml = "0.8"
+
+# Process Management
+nix = { version = "0.28", features = ["signal", "process"] }
+
+[features]
+default = ["nvidia"]
+nvidia = ["nvml-wrapper"]
+
+[dev-dependencies]
+tokio-test = "0.4"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+
+[lib]
+name = "ollama_tui"
+path = "src/lib.rs"
+
+[[bin]]
+name = "ollama-tui"
+path = "src/main.rs"
