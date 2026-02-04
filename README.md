@@ -1,12 +1,11 @@
 # Ollama TUI 🦙
 
-[![CI](https://github.com/Ninso112/omarchy-ollama-tui/actions/workflows/ci.yml/badge.svg)](https://github.com/Ninso112/omarchy-ollama-tui/actions/workflows/ci.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Rust](https://img.shields.io/badge/rust-stable-brightgreen.svg)](https://www.rust-lang.org)
 
 A powerful terminal user interface (TUI) for managing [Ollama](https://ollama.ai/) - your local LLM server - with **automatic multi-GPU support** (NVIDIA, AMD, Intel) and real-time monitoring.
 
-![Ollama TUI Screenshot](docs/screenshot.png)
+> **Note**: This is a test project and not a fully functional application.
 
 ## ✨ Features
 
