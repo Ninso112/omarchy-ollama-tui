@@ -10,6 +10,7 @@ keywords = ["ollama", "tui", "llm", "gpu", "monitoring"]
 categories = ["command-line-utilities"]
 
 [dependencies]
+async-trait = "0.1"
 # TUI Framework
 ratatui = "0.26"
 crossterm = "0.27"

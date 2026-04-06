@@ -4,12 +4,19 @@ use std::path::Path;
 use tracing::debug;
 
 use super::GpuStats;
+use async_trait::async_trait;
+use super::GpuProvider;
 
 pub struct AmdMonitor {
     device_path: String,
 }
 
 impl AmdMonitor {
+    
+    
+    
+    // existing methods
+
     pub fn new() -> Result<Self> {
         // Try to detect AMD GPU via sysfs
         let base_path = "/sys/class/drm";

@@ -5,14 +5,15 @@ use tracing::{debug, error};
 use nvml_wrapper::Nvml;
 
 use super::GpuStats;
+use async_trait::async_trait;
 
 pub struct NvidiaMonitor {
     #[cfg(feature = "nvidia")]
     nvml: Nvml,
 }
 
+#[cfg(feature = "nvidia")]
 impl NvidiaMonitor {
-    #[cfg(feature = "nvidia")]
     pub fn new() -> Result<Self> {
         match Nvml::init() {
             Ok(nvml) => {
@@ -25,13 +26,17 @@ impl NvidiaMonitor {
             }
         }
     }
+}
 
-    #[cfg(not(feature = "nvidia"))]
+#[cfg(not(feature = "nvidia"))]
+impl NvidiaMonitor {
     pub fn new() -> Result<Self> {
         anyhow::bail!("NVIDIA support not compiled in")
     }
+}
 
-    #[cfg(feature = "nvidia")]
+#[cfg(feature = "nvidia")]
+impl NvidiaMonitor {
     pub async fn get_stats(&self) -> Result<GpuStats> {
         // Get the first GPU device
         let device = self.nvml.device_by_index(0)?;
@@ -72,9 +77,18 @@ impl NvidiaMonitor {
             temperature,
         })
     }
+}
 
-    #[cfg(not(feature = "nvidia"))]
+#[cfg(not(feature = "nvidia"))]
+impl NvidiaMonitor {
     pub async fn get_stats(&self) -> Result<GpuStats> {
         anyhow::bail!("NVIDIA support not compiled in")
+    }
+}
+
+#[async_trait]
+impl GpuProvider for NvidiaMonitor {
+    async fn get_stats(&self) -> Result<GpuStats> {
+        NvidiaMonitor::get_stats(self).await
     }
 }

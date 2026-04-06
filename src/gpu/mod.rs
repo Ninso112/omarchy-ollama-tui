@@ -5,6 +5,12 @@ pub mod nvidia;
 
 use anyhow::Result;
 use tracing::{debug, info};
+use async_trait::async_trait;
+
+#[async_trait]
+pub trait GpuProvider: Send + Sync {
+    async fn get_stats(&self) -> Result<GpuStats>;
+}
 
 #[derive(Debug, Clone)]
 pub struct GpuStats {
@@ -25,10 +31,7 @@ pub enum GpuType {
 
 pub struct GpuMonitor {
     gpu_type: GpuType,
-    nvidia_monitor: Option<nvidia::NvidiaMonitor>,
-    amd_monitor: Option<amd::AmdMonitor>,
-    intel_monitor: Option<intel::IntelMonitor>,
-    fallback_monitor: fallback::FallbackMonitor,
+    provider: Box<dyn GpuProvider>,
 }
 
 impl GpuMonitor {
@@ -37,75 +40,36 @@ impl GpuMonitor {
 
         // Try to detect and initialize GPU in order of preference
         let mut gpu_type = GpuType::Unknown;
-        let mut nvidia_monitor = None;
-        let mut amd_monitor = None;
-        let mut intel_monitor = None;
+        let provider: Box<dyn GpuProvider>;
 
         // Try NVIDIA first
         if let Ok(monitor) = nvidia::NvidiaMonitor::new() {
             info!("NVIDIA GPU detected");
             gpu_type = GpuType::Nvidia;
-            nvidia_monitor = Some(monitor);
-        }
-        // Try AMD if NVIDIA failed
-        else if let Ok(monitor) = amd::AmdMonitor::new() {
+            provider = Box::new(monitor);
+        } else if let Ok(monitor) = amd::AmdMonitor::new() {
             info!("AMD GPU detected");
             gpu_type = GpuType::Amd;
-            amd_monitor = Some(monitor);
-        }
-        // Try Intel if both NVIDIA and AMD failed
-        else if let Ok(monitor) = intel::IntelMonitor::new() {
+            provider = Box::new(monitor);
+        } else if let Ok(monitor) = intel::IntelMonitor::new() {
             info!("Intel GPU detected");
             gpu_type = GpuType::Intel;
-            intel_monitor = Some(monitor);
+            provider = Box::new(monitor);
         } else {
             info!("No dedicated GPU detected, using fallback monitoring");
+            gpu_type = GpuType::Unknown;
+            let fallback = fallback::FallbackMonitor::new()?;
+            provider = Box::new(fallback);
         }
 
-        let fallback_monitor = fallback::FallbackMonitor::new()?;
-
-        Ok(Self {
-            gpu_type,
-            nvidia_monitor,
-            amd_monitor,
-            intel_monitor,
-            fallback_monitor,
-        })
+        Ok(Self { gpu_type, provider })
     }
 
     pub async fn get_stats(&self) -> Result<GpuStats> {
-        // Try the detected GPU type first
-        match self.gpu_type {
-            GpuType::Nvidia => {
-                if let Some(ref monitor) = self.nvidia_monitor {
-                    if let Ok(stats) = monitor.get_stats().await {
-                        debug!("Got NVIDIA GPU stats");
-                        return Ok(stats);
-                    }
-                }
-            }
-            GpuType::Amd => {
-                if let Some(ref monitor) = self.amd_monitor {
-                    if let Ok(stats) = monitor.get_stats().await {
-                        debug!("Got AMD GPU stats");
-                        return Ok(stats);
-                    }
-                }
-            }
-            GpuType::Intel => {
-                if let Some(ref monitor) = self.intel_monitor {
-                    if let Ok(stats) = monitor.get_stats().await {
-                        debug!("Got Intel GPU stats");
-                        return Ok(stats);
-                    }
-                }
-            }
-            GpuType::Unknown => {}
-        }
-
-        // Fallback to sysinfo-based monitoring
-        debug!("Using fallback GPU monitoring");
-        self.fallback_monitor.get_stats().await
+        // Delegate to the selected provider
+        let stats = self.provider.get_stats().await;
+        debug!("GPU stats obtained via provider");
+        stats
     }
 
     #[allow(dead_code)]
@@ -116,6 +80,6 @@ impl GpuMonitor {
 
 impl Default for GpuMonitor {
     fn default() -> Self {
-        Self::new().expect("Failed to create GPU monitor")
+        Self::new().unwrap_or_else(|e| panic!("Failed to create GPU monitor: {}", e))
     }
 }

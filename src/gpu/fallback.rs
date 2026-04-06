@@ -5,12 +5,17 @@ use super::GpuStats;
 
 pub struct FallbackMonitor {}
 
+use async_trait::async_trait;
+
 impl FallbackMonitor {
     pub fn new() -> Result<Self> {
         Ok(Self {})
     }
+}
 
-    pub async fn get_stats(&self) -> Result<GpuStats> {
+#[async_trait]
+impl GpuProvider for FallbackMonitor {
+    async fn get_stats(&self) -> Result<GpuStats> {
         // Note: sysinfo doesn't provide GPU-specific information
         // This is a fallback that provides basic system info
 
@@ -28,8 +33,9 @@ impl FallbackMonitor {
     }
 }
 
+
 impl Default for FallbackMonitor {
     fn default() -> Self {
-        Self::new().expect("Failed to create fallback monitor")
+        Self::new().unwrap_or_else(|e| panic!("Failed to create fallback monitor: {}", e))
     }
 }

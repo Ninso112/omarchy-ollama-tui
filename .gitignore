@@ -1,0 +1,7 @@
+# Ignore opencode directory if present
+opencode/
+
+# Claude Code
+.claude/
+.openclaude-profile.json
+.opencode/

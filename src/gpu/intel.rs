@@ -4,6 +4,7 @@ use std::path::Path;
 use tracing::debug;
 
 use super::GpuStats;
+use async_trait::async_trait;
 
 pub struct IntelMonitor {
     device_path: String,
