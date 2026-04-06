@@ -1,266 +1,85 @@
-# Ollama TUI 🦙
+# ollama-tui
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Rust](https://img.shields.io/badge/rust-stable-brightgreen.svg)](https://www.rust-lang.org)
+Terminal UI for [Ollama](https://ollama.ai/). Manage models, start/stop the server, and monitor GPU usage -- all from your terminal.
 
-A powerful terminal user interface (TUI) for managing [Ollama](https://ollama.ai/) - your local LLM server - with **automatic multi-GPU support** (NVIDIA, AMD, Intel) and real-time monitoring.
+> Work in progress. Usable but rough around the edges.
 
-> **Note**: This is a test project and not a fully functional application.
+![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)
 
-## ✨ Features
+## What it does
 
-- 🎮 **Interactive TUI**: Beautiful terminal interface built with [ratatui](https://github.com/ratatui-org/ratatui)
-- 🔧 **Ollama Control**: Start/Stop the Ollama server directly from the TUI
-- 📦 **Model Management**: 
-  - List all available models
-  - Load models into memory
-  - Unload models to free VRAM
-  - **Pull new models from Ollama library with interactive dialog**
-  - View model details (size, modified date)
-- 📊 **Real-time GPU Monitoring**:
-  - **Automatic GPU detection (NVIDIA, AMD, Intel)**
-  - GPU utilization percentage
-  - VRAM usage (used/total)
-  - GPU temperature
-  - Visual progress bars
-- 📝 **Status Logging**: Real-time status updates and error messages
-- ⌨️ **Keyboard Navigation**: Vim-style keybindings for efficient control
+- Start and stop the Ollama server
+- List, load, unload, and pull models
+- Live GPU stats (utilization, VRAM, temperature) for NVIDIA, AMD, and Intel
+- Vim-style navigation
 
-## 📋 Prerequisites
+## Requirements
 
-- **Rust**: 1.70 or later ([install](https://rustup.rs/))
-- **Ollama**: Installed on your system ([install](https://ollama.ai/download))
-- **GPU** (optional): For GPU monitoring
-  - **NVIDIA**: Drivers + CUDA toolkit (NVML support)
-  - **AMD**: ROCm drivers (sysfs monitoring)
-  - **Intel**: Intel graphics drivers (sysfs monitoring)
-  - Automatic detection - works with any supported GPU!
+- [Rust](https://rustup.rs/) >= 1.70
+- [Ollama](https://ollama.ai/download)
+- GPU drivers (optional) -- NVIDIA (NVML/CUDA), AMD (ROCm/AMDGPU), or Intel
 
-## 🚀 Installation
-
-### From Source
+## Install
 
 ```bash
-# Clone the repository
 git clone https://github.com/Ninso112/omarchy-ollama-tui.git
 cd omarchy-ollama-tui
+cargo install --path .
+```
 
-# Build and install (with all GPU support)
-cargo install --path . --features nvidia
+Build without NVIDIA support:
 
-# Or build without optional features
+```bash
 cargo install --path . --no-default-features
 ```
 
-### Using Cargo
-
-```bash
-# With NVIDIA support
-cargo install ollama-tui --features nvidia
-
-# Without NVIDIA support
-cargo install ollama-tui --no-default-features
-```
-
-## 🎯 Usage
-
-Simply run the application:
+## Usage
 
 ```bash
 ollama-tui
 ```
 
-### Keybindings
+### Keys
 
 | Key | Action |
-|-----|--------|
-| `q` / `Esc` | Quit the application |
-| `↑` / `k` | Move selection up |
-| `↓` / `j` | Move selection down |
-| `Enter` | Load selected model |
-| `r` | Refresh model list |
-| `s` | Start/Stop Ollama server |
-| `u` | Unload all models from memory |
-| `p` | **Pull a new model (interactive dialog)** |
+|---|---|
+| `q` / `Esc` | Quit |
+| `j` / `k` / arrows | Navigate |
+| `Enter` | Load model |
+| `r` | Refresh list |
+| `s` | Start/stop server |
+| `u` | Unload all models |
+| `p` | Pull model |
 
-## 🏗️ Architecture
+## Configuration
 
-```
-ollama-tui/
-├── src/
-│   ├── main.rs           # Entry point and async runtime
-│   ├── app.rs            # Application state and logic
-│   ├── config.rs         # Configuration management
-│   ├── ui/               # User interface components
-│   │   ├── layout.rs     # Main layout composition
-│   │   ├── model_list.rs # Model list widget
-│   │   ├── gpu_stats.rs  # GPU statistics widget
-│   │   └── status_bar.rs # Status bar and keybindings
-│   ├── ollama/           # Ollama API client
-│   │   ├── client.rs     # HTTP client
-│   │   ├── models.rs     # Data structures
-│   │   └── process.rs    # Process management
-│   ├── gpu/              # GPU monitoring
-│   │   ├── nvidia.rs     # NVML wrapper
-│   │   └── fallback.rs   # Fallback for non-NVIDIA
-│   └── events/           # Event handling
-│       ├── handler.rs    # Keyboard events
-│       └── tick.rs       # Tick events
-└── tests/                # Integration tests
-```
-
-## ⚙️ Configuration
-
-Ollama TUI stores its configuration in:
-- **Linux**: `~/.config/ollama-tui/config.toml`
-- **macOS**: `~/Library/Application Support/ollama-tui/config.toml`
-- **Windows**: `%APPDATA%\ollama-tui\config.toml`
-
-### Configuration Options
+Config lives at `~/.config/ollama-tui/config.toml` (Linux), `~/Library/Application Support/ollama-tui/config.toml` (macOS), or `%APPDATA%\ollama-tui\config.toml` (Windows).
 
 ```toml
-# Ollama API URL
 ollama_url = "http://localhost:11434"
-
-# Update interval in milliseconds
 update_interval_ms = 1000
-
-# Maximum number of status messages to keep
 max_status_messages = 100
 ```
 
-## 🔧 Development
-
-### Building
+## Building / Testing
 
 ```bash
-# Debug build
-cargo build
-
-# Release build
-cargo build --release
-
-# With NVIDIA support
-cargo build --features nvidia
-
-# Without default features
-cargo build --no-default-features
-```
-
-### Testing
-
-```bash
-# Run all tests
-cargo test
-
-# Run tests with all features
-cargo test --all-features
-
-# Run tests without default features
-cargo test --no-default-features
-```
-
-### Code Quality
-
-```bash
-# Format code
-cargo fmt
-
-# Check formatting
-cargo fmt -- --check
-
-# Run clippy
-cargo clippy -- -D warnings
-
-# Run clippy with all features
+cargo build                          # debug
+cargo build --release                # release
+cargo test --all-features            # tests
 cargo clippy --all-features -- -D warnings
 ```
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
-### GPU Monitoring Not Working
+**GPU stats show N/A?** Check that your drivers are installed (`nvidia-smi`, `rocm-smi`, or `/sys/class/drm/`). Rebuild with `--features nvidia` if needed.
 
-If GPU statistics show "N/A" or zeros:
+**Ollama won't start?** Make sure `ollama` is in your PATH and port 11434 is free. Try `ollama serve` manually to see errors.
 
-1. **Check your GPU type**:
-   - **NVIDIA**: Run `nvidia-smi` to verify drivers
-   - **AMD**: Run `rocm-smi` or check `/sys/class/drm/`
-   - **Intel**: Check `/sys/class/drm/` for Intel GPU
+## Contributing
 
-2. **Ensure proper drivers are installed**:
-   - **NVIDIA**: NVIDIA drivers + CUDA toolkit
-   - **AMD**: ROCm drivers or AMDGPU drivers
-   - **Intel**: Intel graphics drivers (usually pre-installed)
+See [CONTRIBUTING.md](CONTRIBUTING.md). Some things that are still missing: model deletion, chat interface, Metal support, streaming pull progress.
 
-3. **Rebuild if needed**:
-   ```bash
-   cargo install --path . --features nvidia --force
-   ```
+## License
 
-The application automatically detects your GPU type and uses the appropriate monitoring method!
-
-### Ollama Server Won't Start
-
-1. **Check if Ollama is installed**:
-   ```bash
-   which ollama
-   ```
-
-2. **Try starting manually**:
-   ```bash
-   ollama serve
-   ```
-
-3. **Check port availability**: Ensure port 11434 is not in use by another process.
-
-### Models Not Loading
-
-1. **Verify Ollama is running**: Check the "Ollama" status in the GPU Statistics panel
-2. **Check available models**: Run `ollama list` in your terminal
-3. **Pull a model if none exist**: Run `ollama pull llama3.2`
-
-## 🤝 Contributing
-
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
-
-### Areas for Contribution
-
-- [ ] Model deletion functionality
-- [ ] Chat interface integration
-- [ ] macOS Metal support
-- [ ] Configuration UI
-- [ ] Model search and filtering
-- [ ] Export logs functionality
-- [ ] Streaming progress for model pulls
-
-## 📝 License
-
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- [Ollama](https://ollama.ai/) - Local LLM server
-- [ratatui](https://github.com/ratatui-org/ratatui) - Terminal UI framework
-- [crossterm](https://github.com/crossterm-rs/crossterm) - Cross-platform terminal manipulation
-- [nvml-wrapper](https://github.com/Cldfire/nvml-wrapper) - NVIDIA Management Library wrapper
-
-## 📚 Resources
-
-- [Ollama Documentation](https://github.com/ollama/ollama/tree/main/docs)
-- [Ollama API Reference](https://github.com/ollama/ollama/blob/main/docs/api.md)
-- [Ratatui Book](https://ratatui.rs/)
-
-## 🔗 Related Projects
-
-- [Ollama](https://github.com/ollama/ollama) - The Ollama LLM server
-- [ollama-python](https://github.com/ollama/ollama-python) - Python client for Ollama
-- [ollama-js](https://github.com/ollama/ollama-js) - JavaScript client for Ollama
-
-## 📮 Contact
-
-- Issues: [GitHub Issues](https://github.com/Ninso112/omarchy-ollama-tui/issues)
-- Discussions: [GitHub Discussions](https://github.com/Ninso112/omarchy-ollama-tui/discussions)
-
----
-
-Made with ❤️ by the open-source community
+[GPL-3.0](LICENSE)
